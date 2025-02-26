@@ -23,6 +23,8 @@ NL=$'\n'
 TERMUX_CORE__TESTS__DETECT_LEAKS=0 # Default: `0`
 TERMUX_CORE__TESTS__USE_FSANITIZE_BUILDS="false" # Default: `false`
 TERMUX_CORE__TESTS__NO_CLEAN="false" # Default: `false`
+[[ ! "${TERMUX_CORE__TESTS__SKIP_TERMUX_CORE_ENV_VARIABLE_TESTS:-}" =~ ^true|false$ ]] && \
+TERMUX_CORE__TESTS__SKIP_TERMUX_CORE_ENV_VARIABLE_TESTS="false" # Default: `false`
 TERMUX_CORE__TESTS__TEST_NAMES_FILTER=""
 TERMUX_CORE__TESTS__TEST_PACKAGES_FILTER="^.*$" # Default: `^.*$`
 
@@ -883,6 +885,9 @@ termux_core__tests__process_script_arguments() {
                     only-termux-core-tests)
                         TERMUX_CORE__TESTS__TEST_PACKAGES_FILTER="^termux-core$"
                         ;;
+                    skip-termux-core-env-variable-tests)
+                        TERMUX_CORE__TESTS__SKIP_TERMUX_CORE_ENV_VARIABLE_TESTS="true"
+                        ;;
                     test-names-filter=?*)
                         TERMUX_CORE__TESTS__TEST_NAMES_FILTER="$opt_arg" || return $?
                         ;;
@@ -986,6 +991,9 @@ Available command_options:
     [ --no-clean ]            Do not clean test files on failure.
     [ --only-termux-core-tests ]
                               Only run 'termux-core' package tests.
+    [ --skip-termux-core-env-variable-tests ]
+                              Skip 'termux-core' package tests for
+                              Termux scoped environment variables.
     [ --test-names-filter=<filter> ]
                               Regex to filter which tests to run by
                               test name.

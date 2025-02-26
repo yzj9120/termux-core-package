@@ -32,6 +32,8 @@ If you get `CANNOT LINK EXECUTABLE *: library "libclang_rt.asan-aarch64.so" not 
 
 By default, `termux-core-tests` also runs tests other external Termux packages/commands to ensure proper functioning of the Termux execution environment. To only run `termux-core` package specific tests, pass `--only-termux-core-tests`. To run tests for specific packages only, pass a regex with `--test-packages-filter=<filter>` option.
 
+To skip `termux-core` package scoped environment variable tests, pass `--skip-termux-core-env-variable-tests`, as under normal circumstances with Termux app in foreground, tests take `~5min` to run depending on device.
+
 &nbsp;
 
 Make sure to grant Termux app `Draw over apps` permission as otherwise `termux-am` tests will fail.
@@ -72,6 +74,9 @@ Available command_options:
     [ --no-clean ]            Do not clean test files on failure.
     [ --only-termux-core-tests ]
                               Only run 'termux-core' package tests.
+    [ --skip-termux-core-env-variable-tests ]
+                              Skip 'termux-core' package tests for
+                              Termux scoped environment variables.
     [ --test-names-filter=<filter> ]
                               Regex to filter which tests to run by
                               test name.
