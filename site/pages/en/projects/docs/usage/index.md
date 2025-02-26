@@ -30,6 +30,7 @@ The [`termux-core`](https://github.com/termux/termux-core-package) package provi
 
 - [`termux-scoped-env-variable`](utils/termux/shell/command/environment/termux-scoped-env-variable.md)
 - [`termux-apps-info-env-variable`](utils/termux/shell/command/environment/termux-apps-info-env-variable.md)
+- [`termux-apps-info-app-version-name`](utils/termux/shell/command/environment/termux-apps-info-app-version-name.md)
 
 ---
 
