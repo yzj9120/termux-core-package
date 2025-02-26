@@ -15,6 +15,7 @@ TermuxShellCommandEnvioronment_runTests() {
         TERMUX_CORE__TESTS__TESTS_COUNT="0"
 
         test__termux_scoped_env_variable || return $?
+        test__termux_apps_info_env_variable || return $?
 
         termux_core__tests__log 3 "All $TERMUX_CORE__TESTS__TESTS_COUNT 'termux_scooed_env' tests successful in \
 $(termux_core__tests__print_elapsed_time "$tests_start_time")"
@@ -39,6 +40,22 @@ test__termux_scoped_env_variable() {
         termux_core__tests__source_file_from_path \
             "$TERMUX_CORE__TESTS__TESTS_PATH/app/main/scripts/termux/shell/command/environment/termux-scoped-env-variable_runtime-script-tests" || exit $?
         termux_core__termux_scoped_env_variable__run_tests || exit $?
+    ) || return $?
+
+    return 0
+
+}
+
+##
+# `test__termux_apps_info_env_variable`
+##
+test__termux_apps_info_env_variable() {
+
+    (
+        # shellcheck source=app/main/tests/scripts/termux/shell/command/environment/termux-apps-info-env-variable_runtime-script-tests.in
+        termux_core__tests__source_file_from_path \
+            "$TERMUX_CORE__TESTS__TESTS_PATH/app/main/scripts/termux/shell/command/environment/termux-apps-info-env-variable_runtime-script-tests" || exit $?
+        termux_core__termux_apps_info_env_variable__run_tests || exit $?
     ) || return $?
 
     return 0
