@@ -225,14 +225,74 @@ FSANTIZE_FLAGS += -fsanitize=address -fsanitize-recover=address -fno-omit-frame-
 
 
 
+override LIBTERMUX_CORE__NOS__C__SOURCE_FILES := \
+	lib/termux-core_nos_c_tre/src/android/shell/command/environment/AndroidShellEnvironment.c \
+	lib/termux-core_nos_c_tre/src/TermuxCoreLibraryConfig.c \
+	lib/termux-core_nos_c_tre/src/data/AssertUtils.c \
+	lib/termux-core_nos_c_tre/src/data/DataUtils.c \
+	lib/termux-core_nos_c_tre/src/logger/FileLoggerImpl.c \
+	lib/termux-core_nos_c_tre/src/logger/Logger.c \
+	lib/termux-core_nos_c_tre/src/logger/StandardLoggerImpl.c \
+	lib/termux-core_nos_c_tre/src/security/SecurityUtils.c \
+	lib/termux-core_nos_c_tre/src/termux/file/TermuxFile.c \
+	lib/termux-core_nos_c_tre/src/termux/shell/command/environment/TermuxShellEnvironment.c \
+	lib/termux-core_nos_c_tre/src/termux/shell/command/environment/termux_core/TermuxCoreShellEnvironment.c \
+	lib/termux-core_nos_c_tre/src/unix/file/UnixFileUtils.c \
+	lib/termux-core_nos_c_tre/src/unix/os/process/UnixForkUtils.c \
+	lib/termux-core_nos_c_tre/src/unix/os/process/UnixSafeStrerror.c \
+	lib/termux-core_nos_c_tre/src/unix/os/process/UnixSignalUtils.c \
+	lib/termux-core_nos_c_tre/src/unix/os/selinux/UnixSeLinuxUtils.c \
+	lib/termux-core_nos_c_tre/src/unix/shell/command/environment/UnixShellEnvironment.c
+
+override LIBTERMUX_CORE__NOS__C__OBJECT_FILES := $(patsubst lib/%.c,$(TMP_BUILD_OUTPUT_DIR)/lib/%.o,$(LIBTERMUX_CORE__NOS__C__SOURCE_FILES))
+
+override LIBTERMUX_CORE__NOS__C__CPPFLAGS := $(CPPFLAGS) -I "lib/termux-core_nos_c_tre/include"
+
+override LIBTERMUX_CORE__NOS__C__TESTS_BUILD_OUTPUT_DIR := $(TESTS_BUILD_OUTPUT_DIR)/lib/termux-core_nos_c_tre
+
+
+
+override LIBTERMUX_CORE__NOS__CXX__SOURCE_FILES := \
+	lib/termux-core_nos_cxx_tre/src/TermuxCoreLibraryConfig.cxx
+
+override LIBTERMUX_CORE__NOS__CXX__OBJECT_FILES := $(patsubst lib/%.cxx,$(TMP_BUILD_OUTPUT_DIR)/lib/%.o,$(LIBTERMUX_CORE__NOS__CXX__SOURCE_FILES))
+
+override LIBTERMUX_CORE__NOS__CXX__CPPFLAGS := $(CPPFLAGS) -I "lib/termux-core_nos_c_tre/include" -I "lib/termux-core_nos_cxx_tre/include"
+
+
+
 override TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR := $(TESTS_BUILD_OUTPUT_DIR)/app/main
+
+
+
+# The `-L` flag must come before `$LDFLAGS`, otherwise old library
+# installed in system library directory from previous builds
+# will get used instead of newly built one in `$LIB_BUILD_OUTPUT_DIR`.
+# The `-fvisibility=hidden` flag is passed so that no internal
+# functions are exported. All exported functions must explicitly enable
+# `default` visibility with `__attribute__((visibility("default")))`,
+# like for the `main()` function.
+# The `-Wl,--exclude-libs=ALL` flag is passed so that symbols from
+# the `libtermux-core_nos_c_tre.a` static library linked are not exported.
+# Run `nm --demangle --defined-only --extern-only <executable>` to
+# find exported symbols.
+override TERMUX_CORE_EXECUTABLE__C__BUILD_COMMAND := \
+	$(CC) $(CFLAGS) $(LIBTERMUX_CORE__NOS__C__CPPFLAGS) \
+	-L$(LIB_BUILD_OUTPUT_DIR) $(LDFLAGS) -Wl,--exclude-libs=ALL \
+	$(TERMUX__CONSTANTS__MACRO_FLAGS) \
+	-fPIE -pie -fvisibility=hidden
+
+# The `-l` flags must be passed after object files for proper linking.
+# The order of libraries matters too and any dependencies of a library
+# must come after it.
+override TERMUX_CORE_EXECUTABLE__C__POST_LDFLAGS := -l:libtermux-core_nos_c_tre.a
 
 
 
 # - https://www.gnu.org/software/make/manual/html_node/Parallel-Disable.html
 .NOTPARALLEL:
 
-all: | pre-build build-termux-core-main-app
+all: | pre-build build-termux-core-main-app build-libtermux-core_nos_c_tre build-libtermux-core_nos_cxx_tre
 	@printf "\ntermux-core-package: %s\n" "Building packaging/debian/*"
 	@mkdir -p $(DEBIAN_PACKAGING_BUILD_OUTPUT_DIR)
 	find packaging/debian -mindepth 1 -maxdepth 1 -type f -name "*.in" -exec sh -c \
@@ -276,6 +336,86 @@ build-termux-core-main-app:
 		'output_file="$(TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR)/scripts/$$(printf "%s" "$$0" | sed -e "s|^app/main/tests/scripts/||" -e "s/\.in$$//")" && mkdir -p "$$(dirname "$$output_file")" && sed $(TERMUX__CONSTANTS__SED_ARGS) "$$0" > "$$output_file"'
 	find $(TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR)/scripts -type f -exec chmod 700 "{}" \;
 
+build-libtermux-core_nos_c_tre:
+	@printf "\ntermux-core-package: %s\n" "Building lib/termux-core_nos_c_tre"
+	@mkdir -p $(LIB_BUILD_OUTPUT_DIR)
+
+	@printf "\ntermux-core-package: %s\n" "Building lib/termux-core_nos_c_tre/lib/*.o"
+	for source_file in $(LIBTERMUX_CORE__NOS__C__SOURCE_FILES); do \
+		mkdir -p "$$(dirname "$(TMP_BUILD_OUTPUT_DIR)/$$source_file")" || exit $$?; \
+		$(CC) -c $(CFLAGS) $(LIBTERMUX_CORE__NOS__C__CPPFLAGS) \
+			$(TERMUX__CONSTANTS__MACRO_FLAGS) \
+			-fPIC -fvisibility=default \
+			-o $(TMP_BUILD_OUTPUT_DIR)/"$$(echo "$$source_file" | sed -E "s/(.*)\.c$$/\1.o/")" \
+			"$$source_file" || exit $$?; \
+	done
+
+	@# `nm --demangle --dynamic --defined-only --extern-only /home/builder/.termux-build/termux-core/src/build/output/usr/lib/libtermux-core_nos_c_tre.so`
+	@printf "\ntermux-core-package: %s\n" "Building lib/libtermux-core_nos_c_tre.so"
+	$(CC) $(CFLAGS) $(LIBTERMUX_CORE__NOS__C__CPPFLAGS) \
+		$(LDFLAGS) \
+		$(TERMUX__CONSTANTS__MACRO_FLAGS) \
+		-fPIC -shared -fvisibility=default \
+		-o $(LIB_BUILD_OUTPUT_DIR)/libtermux-core_nos_c_tre.so \
+		$(LIBTERMUX_CORE__NOS__C__OBJECT_FILES)
+
+	@printf "\ntermux-core-package: %s\n" "Building lib/libtermux-core_nos_c_tre.a"
+	$(AR) rcs $(LIB_BUILD_OUTPUT_DIR)/libtermux-core_nos_c_tre.a $(LIBTERMUX_CORE__NOS__C__OBJECT_FILES)
+
+
+
+	@printf "\ntermux-core-package: %s\n" "Building lib/termux-core_nos_c_tre/tests/*"
+	@mkdir -p $(LIBTERMUX_CORE__NOS__C__TESTS_BUILD_OUTPUT_DIR)
+
+
+	@printf "\ntermux-core-package: %s\n" "Building lib/termux-core_nos_c_tre/tests/libtermux-core_nos_c_tre_tests"
+	$(call replace-termux-constants,lib/termux-core_nos_c_tre/tests/libtermux-core_nos_c_tre_tests,$(LIBTERMUX_CORE__NOS__C__TESTS_BUILD_OUTPUT_DIR))
+	chmod 700 $(LIBTERMUX_CORE__NOS__C__TESTS_BUILD_OUTPUT_DIR)/libtermux-core_nos_c_tre_tests
+
+
+	@printf "\ntermux-core-package: %s\n" "Building lib/termux-core_nos_c_tre/tests/bin/libtermux-core_nos_c_tre_unit-binary-tests"
+	@mkdir -p $(LIBTERMUX_CORE__NOS__C__TESTS_BUILD_OUTPUT_DIR)/bin
+
+	@# `nm --demangle --defined-only --extern-only /home/builder/.termux-build/termux-core/src/build/output/usr/libexec/installed-tests/termux-core/lib/termux-core_nos_c_tre/bin/libtermux-core_nos_c_tre_unit-binary-tests-fsanitize`
+	$(TERMUX_CORE_EXECUTABLE__C__BUILD_COMMAND) -O0 -g \
+		$(FSANTIZE_FLAGS) \
+		-o $(LIBTERMUX_CORE__NOS__C__TESTS_BUILD_OUTPUT_DIR)/bin/libtermux-core_nos_c_tre_unit-binary-tests-fsanitize \
+		lib/termux-core_nos_c_tre/tests/src/libtermux-core_nos_c_tre_unit-binary-tests.c \
+		$(TERMUX_CORE_EXECUTABLE__C__POST_LDFLAGS)
+
+	@# `nm --demangle --defined-only --extern-only /home/builder/.termux-build/termux-core/src/build/output/usr/libexec/installed-tests/termux-core/lib/termux-core_nos_c_tre/bin/libtermux-core_nos_c_tre_unit-binary-tests-nofsanitize`
+	$(TERMUX_CORE_EXECUTABLE__C__BUILD_COMMAND) -O0 -g \
+		-o $(LIBTERMUX_CORE__NOS__C__TESTS_BUILD_OUTPUT_DIR)/bin/libtermux-core_nos_c_tre_unit-binary-tests-nofsanitize \
+		lib/termux-core_nos_c_tre/tests/src/libtermux-core_nos_c_tre_unit-binary-tests.c \
+		$(TERMUX_CORE_EXECUTABLE__C__POST_LDFLAGS)
+
+build-libtermux-core_nos_cxx_tre:
+	@printf "\ntermux-core-package: %s\n" "Building lib/termux-core_nos_cxx_tre"
+	@mkdir -p $(LIB_BUILD_OUTPUT_DIR)
+
+	@printf "\ntermux-core-package: %s\n" "Building lib/termux-core_nos_cxx_tre/lib/*.o"
+	for source_file in $(LIBTERMUX_CORE__NOS__CXX__SOURCE_FILES); do \
+		mkdir -p "$$(dirname "$(TMP_BUILD_OUTPUT_DIR)/$$source_file")" || exit $$?; \
+		$(CXX) -c $(CXXFLAGS) $(LIBTERMUX_CORE__NOS__CXX__CPPFLAGS) \
+			$(TERMUX__CONSTANTS__MACRO_FLAGS) \
+			-fPIC -fvisibility=default \
+			-o $(TMP_BUILD_OUTPUT_DIR)/"$$(echo "$$source_file" | sed -E "s/(.*)\.cxx$$/\1.o/")" \
+			"$$source_file" || exit $$?; \
+	done
+
+	@# `nm --demangle --dynamic --defined-only --extern-only /home/builder/.termux-build/termux-core/src/build/output/usr/lib/libtermux-core_nos_cxx_tre.so`
+	@printf "\ntermux-core-package: %s\n" "Building lib/libtermux-core_nos_cxx_tre.so"
+	$(CXX) $(CXXFLAGS) $(LIBTERMUX_CORE__NOS__CXX__CPPFLAGS) \
+		-L$(LIB_BUILD_OUTPUT_DIR) $(LDFLAGS) -Wl,--exclude-libs=ALL \
+		$(TERMUX__CONSTANTS__MACRO_FLAGS) \
+		-fPIC -shared -fvisibility=default \
+		-o $(LIB_BUILD_OUTPUT_DIR)/libtermux-core_nos_cxx_tre.so \
+		$(LIBTERMUX_CORE__NOS__CXX__OBJECT_FILES) \
+		-l:libtermux-core_nos_c_tre.a
+
+	@printf "\ntermux-core-package: %s\n" "Building lib/libtermux-core_nos_cxx_tre.a"
+	$(AR) rcs $(LIB_BUILD_OUTPUT_DIR)/libtermux-core_nos_cxx_tre.a $(LIBTERMUX_CORE__NOS__CXX__OBJECT_FILES)
+
 
 
 clean:
@@ -284,11 +424,27 @@ clean:
 install:
 	@printf "termux-core-package: %s\n" "Installing termux-core-package in $(TERMUX_CORE_PKG__INSTALL_PREFIX)"
 	install -d $(TERMUX_CORE_PKG__INSTALL_PREFIX)/bin
+	install -d $(TERMUX_CORE_PKG__INSTALL_PREFIX)/include
+	install -d $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib
 	install -d $(TERMUX_CORE_PKG__INSTALL_PREFIX)/libexec
 
 
 	find $(BIN_BUILD_OUTPUT_DIR) -maxdepth 1 \( -type f -o -type l \) -exec cp -a "{}" $(TERMUX_CORE_PKG__INSTALL_PREFIX)/bin/ \;
 
+
+	rm -rf $(TERMUX_CORE_PKG__INSTALL_PREFIX)/include/termux-core
+	install -d $(TERMUX_CORE_PKG__INSTALL_PREFIX)/include/termux-core/termux
+
+	cp -a lib/termux-core_nos_c_tre/include/termux/termux_core__nos__c $(TERMUX_CORE_PKG__INSTALL_PREFIX)/include/termux-core/termux/termux_core__nos__c
+	install $(LIB_BUILD_OUTPUT_DIR)/libtermux-core_nos_c_tre.so $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib/libtermux-core_nos_c_tre.so
+	install $(LIB_BUILD_OUTPUT_DIR)/libtermux-core_nos_c_tre.a $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib/libtermux-core_nos_c_tre.a
+
+	cp -a lib/termux-core_nos_cxx_tre/include/termux/termux_core__nos__cxx $(TERMUX_CORE_PKG__INSTALL_PREFIX)/include/termux-core/termux/termux_core__nos__cxx
+	install $(LIB_BUILD_OUTPUT_DIR)/libtermux-core_nos_cxx_tre.so $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib/libtermux-core_nos_cxx_tre.so
+	install $(LIB_BUILD_OUTPUT_DIR)/libtermux-core_nos_cxx_tre.a $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib/libtermux-core_nos_cxx_tre.a
+
+	find $(TERMUX_CORE_PKG__INSTALL_PREFIX)/include/termux-core -type d -exec chmod 700 {} \;
+	find $(TERMUX_CORE_PKG__INSTALL_PREFIX)/include/termux-core -type f -exec chmod 600 {} \;
 
 
 	rm -rf $(TERMUX_CORE_PKG__INSTALL_PREFIX)/libexec/installed-tests/termux-core
@@ -303,6 +459,14 @@ uninstall:
 	find app/main/scripts \( -type f -o -type l \) -exec sh -c \
 		'rm -f "$(TERMUX_CORE_PKG__INSTALL_PREFIX)/bin/$$(basename "$$1" | sed "s/\.in$$//")"' sh "{}" \;
 
+	rm -rf $(TERMUX_CORE_PKG__INSTALL_PREFIX)/include/termux-core
+
+
+	rm -f $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib/libtermux-core_nos_c_tre.so
+	rm -f $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib/libtermux-core_nos_c_tre.a
+
+	rm -f $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib/libtermux-core_nos_cxx_tre.so
+	rm -f $(TERMUX_CORE_PKG__INSTALL_PREFIX)/lib/libtermux-core_nos_cxx_tre.a
 
 
 	rm -rf $(TERMUX_CORE_PKG__INSTALL_PREFIX)/libexec/installed-tests/termux-core
@@ -345,4 +509,4 @@ test-runtime: all
 
 
 
-.PHONY: all pre-build build-termux-core-main-app clean install uninstall packaging-debian-build test test-unit test-runtime
+.PHONY: all pre-build build-termux-core-main-app build-libtermux-core_nos_c_tre build-libtermux-core_nos_cxx_tre clean install uninstall packaging-debian-build test test-unit test-runtime

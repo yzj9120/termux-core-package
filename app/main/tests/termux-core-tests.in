@@ -219,12 +219,46 @@ termux_core__tests__main() {
 
     # Run tests.
     if [[ "termux-core" =~ $TERMUX_CORE__TESTS__TEST_PACKAGES_FILTER ]]; then
+        termux_core__libtermux_core__nos__c__tests__run_command || return $?
         termux_core__termux_core_main_app__tests__run_command || return $?
     fi
 
 
 
     termux_core__tests__log 1 "All 'termux-core' tests successful in \
+$(termux_core__tests__print_elapsed_time "$tests_start_time")"
+
+    return 0
+
+}
+
+
+
+##
+# `termux_core__libtermux_core__nos__c__tests__run_command`
+##
+termux_core__libtermux_core__nos__c__tests__run_command() {
+
+    local return_value
+
+    local tests_start_time; tests_start_time="$(date "+%s")" || return $?
+
+    termux_core__tests__log 1 "Running 'libtermux-core_nos_c_tre_tests'"
+
+    (
+        # shellcheck source=lib/termux-core_nos_c_tre/tests/libtermux-core_nos_c_tre_tests.in
+        termux_core__tests__source_file_from_path \
+            "$TERMUX_CORE__TESTS__TESTS_PATH/lib/termux-core_nos_c_tre/libtermux-core_nos_c_tre_tests" || exit $?
+
+        libtermux_core__nos__c__tests__main
+    )
+    return_value=$?
+    if [ $return_value -ne 0 ]; then
+        termux_core__tests__log_error "'libtermux-core_nos_c_tre_tests' failed"
+        return $return_value
+    fi
+
+    termux_core__tests__log 2 "'libtermux-core_nos_c_tre_tests' completed in \
 $(termux_core__tests__print_elapsed_time "$tests_start_time")"
 
     return 0
