@@ -1,0 +1,21 @@
+{
+    "control": {
+        "Package": "termux-core",
+        "Version": "@TERMUX_CORE_PKG__VERSION@",
+        "Architecture": "@TERMUX_CORE_PKG__ARCH@",
+        "Maintainer": "@termux",
+        "Depends": "termux-core",
+        "Homepage": "https://github.com/termux/termux-core-package",
+        "Description": "Utils and libraries for Termux core"
+    },
+
+    "installation_prefix": "@TERMUX__PREFIX@",
+    "control_files_dir": "build/output/packaging/debian",
+
+    "data_files": {
+        "": {
+            "source": "build/output/usr",
+            "source_recurse": true
+        }
+    }
+}
