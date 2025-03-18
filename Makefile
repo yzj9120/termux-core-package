@@ -264,6 +264,19 @@ build-termux-core-main-app:
 	"$(TERMUX_CORE__TERMUX_REPLACE_TERMUX_CORE_SRC_SCRIPTS_FILE)" $(BIN_BUILD_OUTPUT_DIR)/*
 
 
+	@printf "\ntermux-core-package: %s\n" "Building app/main/tests/*"
+	@mkdir -p $(TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR)
+	find app/main/tests -maxdepth 1 -type f -name "*.in" -print0 | xargs -0 -n1 sh -c \
+		'output_file="$(TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR)/$$(printf "%s" "$$0" | sed -e "s|^app/main/tests/||" -e "s/\.in$$//")" && mkdir -p "$$(dirname "$$output_file")" && sed $(TERMUX__CONSTANTS__SED_ARGS) "$$0" > "$$output_file"'
+	find $(TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR) -maxdepth 1 -type f -exec chmod 700 "{}" \;
+
+	@printf "\ntermux-core-package: %s\n" "Building app/main/tests/scripts/*"
+	@mkdir -p $(TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR)/scripts
+	find app/main/tests/scripts -type f -name "*.in" -print0 | xargs -0 -n1 sh -c \
+		'output_file="$(TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR)/scripts/$$(printf "%s" "$$0" | sed -e "s|^app/main/tests/scripts/||" -e "s/\.in$$//")" && mkdir -p "$$(dirname "$$output_file")" && sed $(TERMUX__CONSTANTS__SED_ARGS) "$$0" > "$$output_file"'
+	find $(TERMUX_CORE__MAIN_APP__TESTS_BUILD_OUTPUT_DIR)/scripts -type f -exec chmod 700 "{}" \;
+
+
 
 clean:
 	rm -rf $(BUILD_OUTPUT_DIR)
@@ -271,9 +284,16 @@ clean:
 install:
 	@printf "termux-core-package: %s\n" "Installing termux-core-package in $(TERMUX_CORE_PKG__INSTALL_PREFIX)"
 	install -d $(TERMUX_CORE_PKG__INSTALL_PREFIX)/bin
+	install -d $(TERMUX_CORE_PKG__INSTALL_PREFIX)/libexec
 
 
 	find $(BIN_BUILD_OUTPUT_DIR) -maxdepth 1 \( -type f -o -type l \) -exec cp -a "{}" $(TERMUX_CORE_PKG__INSTALL_PREFIX)/bin/ \;
+
+
+
+	rm -rf $(TERMUX_CORE_PKG__INSTALL_PREFIX)/libexec/installed-tests/termux-core
+	install -d $(TERMUX_CORE_PKG__INSTALL_PREFIX)/libexec/installed-tests
+	cp -a $(TESTS_BUILD_OUTPUT_DIR) $(TERMUX_CORE_PKG__INSTALL_PREFIX)/libexec/installed-tests/termux-core
 
 	@printf "\ntermux-core-package: %s\n\n" "Install termux-core-package successful"
 
@@ -282,6 +302,10 @@ uninstall:
 
 	find app/main/scripts \( -type f -o -type l \) -exec sh -c \
 		'rm -f "$(TERMUX_CORE_PKG__INSTALL_PREFIX)/bin/$$(basename "$$1" | sed "s/\.in$$//")"' sh "{}" \;
+
+
+
+	rm -rf $(TERMUX_CORE_PKG__INSTALL_PREFIX)/libexec/installed-tests/termux-core
 
 	@printf "\ntermux-core-package: %s\n\n" "Uninstall termux-core-package successful"
 
@@ -292,4 +316,33 @@ packaging-debian-build: all
 
 
 
-.PHONY: all pre-build build-termux-core-main-app clean install uninstall packaging-debian-build
+test: all
+	$(MAKE) TERMUX_CORE_PKG__INSTALL_PREFIX=$(PREFIX_BUILD_INSTALL_DIR) install
+
+	@printf "\ntermux-core-package: %s\n" "Executing termux-core-package tests"
+	bash $(PREFIX_BUILD_INSTALL_DIR)/libexec/installed-tests/termux-core/app/main/termux-core-tests \
+		--tests-path="$(PREFIX_BUILD_INSTALL_DIR)/libexec/installed-tests/termux-core" \
+		--only-termux-core-tests \
+		-vvv all
+
+test-unit: all
+	$(MAKE) TERMUX_CORE_PKG__INSTALL_PREFIX=$(PREFIX_BUILD_INSTALL_DIR) install
+
+	@printf "\ntermux-core-package: %s\n" "Executing termux-core-package unit tests"
+	bash $(PREFIX_BUILD_INSTALL_DIR)/libexec/installed-tests/termux-core/app/main/termux-core-tests \
+		--tests-path="$(PREFIX_BUILD_INSTALL_DIR)/libexec/installed-tests/termux-core" \
+		--only-termux-core-tests \
+		-vvv unit
+
+test-runtime: all
+	$(MAKE) TERMUX_CORE_PKG__INSTALL_PREFIX=$(PREFIX_BUILD_INSTALL_DIR) install
+
+	@printf "\ntermux-core-package: %s\n" "Executing termux-core-package runtime tests"
+	bash $(PREFIX_BUILD_INSTALL_DIR)/libexec/installed-tests/termux-core/app/main/termux-core-tests \
+		--tests-path="$(PREFIX_BUILD_INSTALL_DIR)/libexec/installed-tests/termux-core" \
+		--only-termux-core-tests \
+		-vvv runtime
+
+
+
+.PHONY: all pre-build build-termux-core-main-app clean install uninstall packaging-debian-build test test-unit test-runtime
