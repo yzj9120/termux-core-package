@@ -874,7 +874,7 @@ termux_core__tests__process_script_arguments() {
                         ;;
                     version)
                         TERMUX_CORE__TESTS__COMMAND_TYPE_NOOP="true"
-                        echo "@TERMUX_CORE_PKG__VERSION@"; return $?
+                        echo "termux-core-tests version=@TERMUX_CORE_PKG__VERSION@ org=@TERMUX__REPOS_HOST_ORG_NAME@ project=termux-core-package"; return $?
                         ;;
                     quiet)
                         TERMUX_CORE__TESTS__LOG_LEVEL=0

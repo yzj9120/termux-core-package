@@ -230,7 +230,7 @@ termux_core__bash__termux_scoped_env_variable__main() {
         termux_core__bash__termux_scoped_env_variable__show_help || return $?
         return 0
     elif [ "$1" = "--version" ]; then
-        echo "@TERMUX_CORE_PKG__VERSION@" || return $?
+        echo "termux-scoped-env-variable.bash version=@TERMUX_CORE_PKG__VERSION@ org=@TERMUX__REPOS_HOST_ORG_NAME@ project=termux-core-package"; return $?
         return 0
     elif [ "$1" = "set-value" ] || [ "$1" = "unset-value" ]; then
         echo "The '$1' command cannot be run if executing the 'termux-scoped-env-variable.bash' script." 1>&2

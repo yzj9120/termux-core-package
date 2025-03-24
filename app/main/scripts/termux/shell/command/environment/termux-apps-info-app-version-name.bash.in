@@ -115,7 +115,7 @@ termux_core__bash__termux_apps_info_app_version_name__main() {
         termux_core__bash__termux_apps_info_app_version_name__show_help || return $?
         return 0
     elif [ "$1" = "--version" ]; then
-        echo "@TERMUX_CORE_PKG__VERSION@" || return $?
+        echo "termux-apps-info-app-version-name.bash version=@TERMUX_CORE_PKG__VERSION@ org=@TERMUX__REPOS_HOST_ORG_NAME@ project=termux-core-package"; return $?
         return 0
     elif [ "$1" = "unset-value" ]; then
         echo "The '$1' command cannot be run if executing the 'termux-apps-info-app-version-name.bash' script." 1>&2
