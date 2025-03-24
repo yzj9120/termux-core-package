@@ -81,7 +81,7 @@ ifeq ($(TERMUX_CORE_PKG__ARCH),)
 	else ifneq (,$(findstring $(SPACE)#define __arm__ 1$(SPACE),$(SPACE)$(PREDEFINED_MACROS)$(SPACE)))
 		override TERMUX_CORE_PKG__ARCH := arm
 	else ifneq (,$(findstring $(SPACE)#define __riscv 1$(SPACE),$(SPACE)$(PREDEFINED_MACROS)$(SPACE)))
-		override TERMUX_EXEC_PKG__ARCH := riscv64
+		override TERMUX_CORE_PKG__ARCH := riscv64
 	else
         $(error Unsupported package arch)
 	endif
