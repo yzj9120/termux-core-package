@@ -365,12 +365,16 @@ test__termux_api() {
 
 test__tudo() {
 
+    local return_value
+
     [[ "$TERMUX_CORE__TESTS__RUN_RUNTIME_TESTS" != "true" ]] && return 0
 
     termux_core__tests__log 3 "test__tudo()"
 
     local tudo_script_file_path="$TERMUX__PREFIX/bin/tudo"
     local tudo_tests_file_path="$TERMUX__PREFIX/libexec/installed-tests/tudo/tudo_tests"
+    local tudo_version_string
+    local tudo_version_regex='^tudo version=[^ ]+ org=agnostic-apollo project=tudo$'
 
     if [[ ! -f "$tudo_script_file_path" ]]; then
         termux_core__tests__log 3 "Skipping tudo tests since tudo not installed"
@@ -379,6 +383,19 @@ test__tudo() {
 
     if [[ ! -f "$tudo_tests_file_path" ]]; then
         termux_core__tests__log 3 "Skipping tudo tests since 'tudo_tests' file not found"
+        return 0
+    fi
+
+
+    tudo_version_string="$("$tudo_script_file_path" --version)"
+    return_value=$?
+    if [ $return_value -ne 0 ] || [ -z "$tudo_version_string" ]; then
+        termux_core__tests__log 3 "Skipping tudo tests since failed to get 'tudo' version string"
+        return 0
+    fi
+
+    if [[ ! "$tudo_version_string" =~ $tudo_version_regex ]]; then
+        termux_core__tests__log 3 "Skipping tudo tests since 'tudo' version string is not for 'tudo' project provided by 'agnostic-apollo' org: '$tudo_version_string'"
         return 0
     fi
 
@@ -393,12 +410,23 @@ test__tudo() {
 
 test__sudo() {
 
+    local return_value
+
     [[ "$TERMUX_CORE__TESTS__RUN_RUNTIME_TESTS" != "true" ]] && return 0
 
     termux_core__tests__log 3 "test__sudo()"
 
     local sudo_script_file_path="$TERMUX__PREFIX/bin/sudo"
     local sudo_tests_file_path="$TERMUX__PREFIX/libexec/installed-tests/sudo/sudo_tests"
+    local sudo_version_string
+    local sudo_version_regex='^sudo version=[^ ]+ org=agnostic-apollo project=sudo$'
+
+    if [[ "$TERMUX_CORE__TESTS__UID" != "0" ]]; then
+        if [[ "$(su -c "id -u")" != "0" ]]; then
+            termux_core__tests__log 3 "Skipping sudo tests since root access is not available"
+            return 0
+        fi
+    fi
 
     if [[ ! -f "$sudo_script_file_path" ]]; then
         termux_core__tests__log 3 "Skipping sudo tests since sudo not installed"
@@ -410,11 +438,19 @@ test__sudo() {
         return 0
     fi
 
-    if [[ "$TERMUX_CORE__TESTS__UID" != "0" ]]; then
-        if [[ "$(su -c "id -u")" != "0" ]]; then
-            termux_core__tests__log 3 "Skipping sudo tests since root access is not available"
-            return 0
-        fi
+
+    # Run tests only for `sudo` project provided by 'agnostic-apollo' org,
+    # and not for other `sudo` implementations like `tsu`.
+    sudo_version_string="$("$sudo_script_file_path" --version)"
+    return_value=$?
+    if [ $return_value -ne 0 ] || [ -z "$sudo_version_string" ]; then
+        termux_core__tests__log 3 "Skipping sudo tests since failed to get 'sudo' version string"
+        return 0
+    fi
+
+    if [[ ! "$sudo_version_string" =~ $sudo_version_regex ]]; then
+        termux_core__tests__log 3 "Skipping sudo tests since 'sudo' version string is not for 'sudo' project provided by 'agnostic-apollo' org: '$sudo_version_string'"
+        return 0
     fi
 
 
