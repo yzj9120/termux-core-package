@@ -52,6 +52,7 @@ bool getSeProcessContextFromFile(const char* logTag, char buffer[], size_t buffe
             buffer[--bufferSize] = '\0';
         }
     } else {
+        fclose(fp);
         logErrorVVerbose(logTag, "Failed to read se_process_context from '/proc/self/attr/current': '%d'", errno);
         return false;
     }
