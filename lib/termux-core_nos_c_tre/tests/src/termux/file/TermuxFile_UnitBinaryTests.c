@@ -509,7 +509,7 @@ void test__termuxApp_dataDir_isPathUnder__Basic() {
 
 
     if (access(TERMUX__PREFIX__BIN_DIR, X_OK) == 0) {
-        // S_ISREG should fail in `getFdRealpath()`.
+        // S_ISREG should fail in `getRegularFileFdRealPath()`.
         int fd = open(TERMUX__PREFIX__BIN_DIR, 0);
         state__ATrue(fd != -1);
         char procFdPath[40];
@@ -645,7 +645,7 @@ void test__termux_rootfsDir_isPathUnder__Basic() {
 
 
     if (access(TERMUX__PREFIX__BIN_DIR, X_OK) == 0) {
-        // S_ISREG should fail in `getFdRealpath()`.
+        // S_ISREG should fail in `getRegularFileFdRealPath()`.
         int fd = open(TERMUX__PREFIX__BIN_DIR, 0);
         state__ATrue(fd != -1);
         char procFdPath[40];

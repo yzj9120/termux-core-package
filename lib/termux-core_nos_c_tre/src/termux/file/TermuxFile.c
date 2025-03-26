@@ -371,8 +371,8 @@ int termuxApp_dataDir_isPathUnder(const char* logTag, const char *path,
     const char* realPath;
     char realPathBuffer[PATH_MAX];
     (void)realPathBuffer;
-    if (strstr(path, "/fd/") != NULL && regexMatch(path, REGEX__PROC_FD_PATH, REG_EXTENDED) == 0) {
-        realPath = getFdRealpath(logTag, path, realPathBuffer, sizeof(realPathBuffer));
+    if (isFdPath(path)) {
+        realPath = getRegularFileFdRealPath(logTag, path, realPathBuffer, sizeof(realPathBuffer));
         if (realPath == NULL) {
             return -1;
         }

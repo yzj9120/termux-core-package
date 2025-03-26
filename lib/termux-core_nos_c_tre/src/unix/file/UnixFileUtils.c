@@ -134,7 +134,13 @@ char* removeDupSeparator(char* path, bool keepEndSeparator) {
 
 
 
-char* getFdRealpath(const char* logTag, const char *path, char *realPath, size_t bufferSize) {
+bool isFdPath(const char *path) {
+
+    return strstr(path, "/fd/") != NULL && regexMatch(path, REGEX__PROC_FD_PATH, REG_EXTENDED) == 0;
+
+}
+
+char* getRegularFileFdRealPath(const char* logTag, const char *path, char *realPath, size_t bufferSize) {
     char pathString[strlen(path) + 1];
     strcpy(pathString, path);
     char* fdString = basename(pathString);
@@ -240,10 +246,10 @@ int isPathOrFdPathInDirPath(const char* logTag, const char* label,
         return 1;
     }
 
-    if (strstr(path, "/fd/") != NULL && regexMatch(path, REGEX__PROC_FD_PATH, REG_EXTENDED) == 0) {
+    if (isFdPath(path)) {
         char realPathBuffer[PATH_MAX];
         (void)realPathBuffer;
-        const char* realPath = getFdRealpath(logTag, path, realPathBuffer, sizeof(realPathBuffer));
+        const char* realPath = getRegularFileFdRealPath(logTag, path, realPathBuffer, sizeof(realPathBuffer));
         if (realPath == NULL) {
             return -1;
         }

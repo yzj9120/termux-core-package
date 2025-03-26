@@ -352,7 +352,8 @@ char *termuxPrefixPath(const char* logTag, const char *termuxPrefixDir,
 /**
  * Check whether the `path` is in `termuxAppDataDir`. If path is
  * a fd path matched by `REGEX__PROC_FD_PATH`, then the real path
- * of the fd returned by `getFdRealpath()` will be checked instead.
+ * of the fd returned by `getRegularFileFdRealPath()` will be checked
+ * instead.
  *
  * **Both `path` and `termuxAppDataDir` must be normalized paths,
  * as `isPathOrFdPathInDirPath()` called by this function will
@@ -381,7 +382,8 @@ int termuxApp_dataDir_isPathUnder(const char* logTag, const char *path,
 /**
  * Check whether the `path` is in `termuxRootfsDir`. If path is
  * a fd path matched by `REGEX__PROC_FD_PATH`, then the real path
- * of the fd returned by `getFdRealpath()` will be checked instead.
+ * of the fd returned by `getRegularFileFdRealPath()` will be checked
+ * instead.
  *
  * **Both `path` and `termuxRootfsDir` must be normalized paths, as
  * `isPathOrFdPathInDirPath()` called by this function will

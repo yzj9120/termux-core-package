@@ -160,6 +160,9 @@ char* removeDupSeparator(char* path, bool keepEndSeparator);
 
 
 
+/** Whether `path` is a path to an fd matching the `REGEX__PROC_FD_PATH` regex. */
+bool isFdPath(const char *path);
+
 /**
  * Get the real path of an fd `path`.
  *
@@ -170,7 +173,7 @@ char* removeDupSeparator(char* path, bool keepEndSeparator);
  *
  * - https://stackoverflow.com/questions/1188757/retrieve-filename-from-file-descriptor-in-c
  */
-char* getFdRealpath(const char* logTag, const char *path, char *realPath,
+char* getRegularFileFdRealPath(const char* logTag, const char *path, char *realPath,
     size_t bufferSize);
 
 
@@ -197,8 +200,8 @@ bool isPathInDirPath(const char* label, const char* path, const char* dirPath, b
  * Check whether the `path` or a fd path is in `dirPath`.
  *
  * If path is a fd path matched by `REGEX__PROC_FD_PATH`, then the
- * real path of the fd returned by `getFdRealpath()` will be checked
- * instead.
+ * real path of the fd returned by `getRegularFileFdRealPath()` will
+ * be checked instead.
  *
  * This is a wrapper for `isPathInDirPath(const char*, const char*, const char*, bool)`
  *
