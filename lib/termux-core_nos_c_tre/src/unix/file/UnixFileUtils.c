@@ -178,18 +178,22 @@ char* getRegularFileFdRealPath(const char* logTag, const char *path, char *realP
     // Check if fd is for a regular file.
     // We should log real path first before doing this check.
     if (!S_ISREG(fdStatbuf.st_mode)) {
-        if (!isRunningTests) {
-            logErrorDebug(logTag, "The real path '%s' for fd path '%s' is of type '%d' instead of a regular file",
-            realPath, path, fdStatbuf.st_mode & S_IFMT);
+        if (S_ISDIR(fdStatbuf.st_mode)) {
+            errno = EISDIR;
+        } else {
+            errno = ENXIO;
         }
-        errno = ENOEXEC;
+        if (!isRunningTests) {
+            logStrerrorDebug(logTag, "The real path '%s' for fd path '%s' is of type '%d' instead of a regular file",
+                realPath, path, fdStatbuf.st_mode & S_IFMT);
+        }
         return NULL;
     }
 
     size_t realPathLength = strlen(realPath);
     if (realPathLength < 1 || realPath[0] != '/') {
         logErrorDebug(logTag, "A non absolute real path '%s' returned for fd path '%s'", realPath, path);
-        errno = ENOEXEC;
+        errno = EIO;
         return NULL;
     }
 
