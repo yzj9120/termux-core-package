@@ -38,3 +38,16 @@ bool areVarsInEnv(char *const *envp, const char *vars[], int n) {
     }
     return false;
 }
+
+bool areEmptyVarsInEnv(char *const *envp, const char *vars[], int n) {
+    int envLength = 0;
+    while (envp[envLength] != NULL) {
+        for (int i = 0; i < n; i++) {
+            if (strcmp(envp[envLength], vars[i]) == 0) {
+                return true;
+            }
+        }
+        envLength++;
+    }
+    return false;
+}

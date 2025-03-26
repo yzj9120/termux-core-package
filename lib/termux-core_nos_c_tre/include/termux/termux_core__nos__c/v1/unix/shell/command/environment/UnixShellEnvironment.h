@@ -116,6 +116,18 @@ bool getBoolEnvValue(const char *name, bool def);
  */
 bool areVarsInEnv(char *const *envp, const char *vars[], int n);
 
+/**
+ * Check if a env variable in `vars` exists in the `envp` with an
+ * empty value where `n` is number of elements in `vars` to search
+ * starting from the first element.
+ *
+ * Each value in vars must be in the format `<name>=`, like `PATH=`.
+ *
+ * @return Returns `true` if even a single variable is found as empty,
+ * otherwise `false`.
+ */
+bool areEmptyVarsInEnv(char *const *envp, const char *vars[], int n);
+
 
 
 #ifdef __cplusplus
