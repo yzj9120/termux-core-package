@@ -15,10 +15,15 @@ struct sForkInfo {
     int cpid;
     int exitCode;
     int status;
-    int pipeFds[2];
+    int stdoutFd; // Original stdout fd of child.
+    int stderrFd; // Original stderr fd of child.
+    int pipeFds[2]; // Fd used for child to send stdout/stderr to parent.
     FILE *pipeFile;
     char *output;
     bool returnOutput;
+    bool redirectChildStdinToDevNull;
+    bool redirectChildStdoutToDevNull;
+    bool redirectChildStderrToDevNull;
     size_t outputInitialBuffer;
     const char* parentLogTag;
     const char* childLogTag;
@@ -28,6 +33,8 @@ struct sForkInfo {
 #define INIT_FORK_INFO(X) ForkInfo X = { \
     .cpid = -1, \
     .exitCode = -1, \
+    .stdoutFd = -1, \
+    .stderrFd = -1, \
     .pipeFile = NULL, \
     .output = NULL, \
     .returnOutput = true, \

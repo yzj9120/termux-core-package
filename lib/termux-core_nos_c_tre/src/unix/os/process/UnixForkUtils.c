@@ -10,6 +10,7 @@
 
 #include <linux/limits.h>
 
+#include <termux/termux_core__nos__c/v1/unix/file/UnixFileUtils.h>
 #include <termux/termux_core__nos__c/v1/logger/Logger.h>
 #include <termux/termux_core__nos__c/v1/unix/os/process/UnixForkUtils.h>
 
@@ -41,16 +42,37 @@ int forkChild(ForkInfo *info) {
             info->onChildFork(info);
         }
 
+
+        if (redirectStdFdToDevNull(info->redirectChildStdinToDevNull,
+                info->redirectChildStdoutToDevNull, info->redirectChildStderrToDevNull) == -1) {
+            logStrerror(info->childLogTag, "Child: Failed to redirect std fd to '/dev/null'");
+            exitForkWithError(info, 1);
+        }
+
+
+        // Copy original stdout/stderr in case need to restore.
+        if ((info->stdoutFd = dup(STDOUT_FILENO)) == -1) {
+            logStrerror(info->childLogTag, "Child: Failed to copy stdout fd");
+            exitForkWithError(info, 1);
+        }
+
+        if ((info->stderrFd = dup(STDERR_FILENO)) == -1) {
+            logStrerror(info->childLogTag, "Child: Failed to copy stderr fd");
+            exitForkWithError(info, 1);
+        }
+
+
         // Redirect stdout/stderr to pipe -> send output to parent.
         if (dup2(info->pipeFds[1], STDOUT_FILENO) == -1) {
-            logStrerror(info->childLogTag, "Child: Failed to redirect stdout");
+            logStrerror(info->childLogTag, "Child: Failed to redirect stdout to parent");
             exitForkWithError(info, 1);
         }
 
         if (dup2(info->pipeFds[1], STDERR_FILENO) == -1) {
-            logStrerror(info->childLogTag, "Child: Failed to redirect stderr");
+            logStrerror(info->childLogTag, "Child: Failed to redirect stderr to parent");
             exitForkWithError(info, 1);
         }
+
 
         // Close both pipe ends (pipeFds[0] belongs to parent,
         // pipeFds[1] no longer needed after dup2).
@@ -169,12 +191,33 @@ void exitForkWithError(ForkInfo *info, int exitCode) {
 }
 
 void cleanupFork(ForkInfo *info) {
-    if (info->pipeFds[0] != -1)
+    if (info->stdoutFd != -1) {
+        close(info->stdoutFd);
+        info->stdoutFd = -1;
+    }
+
+    if (info->stderrFd != -1) {
+        close(info->stderrFd);
+        info->stderrFd = -1;
+    }
+
+    if (info->pipeFds[0] != -1) {
         close(info->pipeFds[0]);
-    if (info->pipeFds[1] != -1)
+        info->pipeFds[0] = -1;
+    }
+
+    if (info->pipeFds[1] != -1) {
         close(info->pipeFds[1]);
-    if (info->pipeFile != NULL)
+        info->pipeFds[1] = -1;
+    }
+
+    if (info->pipeFile != NULL) {
         fclose(info->pipeFile);
-    if (info->output != NULL)
+        info->pipeFile = NULL;
+    }
+
+    if (info->output != NULL) {
         free(info->output);
+        info->output = NULL;
+    }
 }
