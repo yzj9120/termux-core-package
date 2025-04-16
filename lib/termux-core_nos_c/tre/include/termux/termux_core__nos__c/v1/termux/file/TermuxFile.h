@@ -107,7 +107,7 @@ extern "C" {
  *
  * **See Also:**
  * - https://github.com/termux/termux-packages/wiki/Termux-file-system-layout#file-path-limits
- * - https://github.com/termux/termux-exec-package/blob/master/lib/termux-exec_nos_c_tre/include/termux/termux_exec__nos__c/v1/termux/api/termux_exec/ld_preload/direct/exec/ExecIntercept.h
+ * - https://github.com/termux/termux-exec-package/blob/master/lib/termux-exec_nos_c/tre/include/termux/termux_exec__nos__c/v1/termux/api/termux_exec/service/ld_preload/direct/exec/ExecIntercept.h
  *
  * Constant value: `127`
  */

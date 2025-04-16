@@ -69,7 +69,7 @@ libtermux_core__nos__c__unit_binary_tests__run_command() {
         # otherwise command will fail with exit code `1` on Android `< 6`
         # without any error if `argv[0]` length is `>= 128`.
         # Check `checkExecArg0BufferOverflow()` function in `ExecIntercept.h`.
-        cd "$TERMUX_CORE__TESTS__TESTS_PATH/lib/termux-core_nos_c_tre/bin" || exit $?
+        cd "$TERMUX_CORE__TESTS__TESTS_PATH/lib/termux-core_nos_c/tre/bin" || exit $?
         printf -v "$TERMUX_CORE__TESTS__LOG_LEVEL___N" "%s" "$TERMUX_CORE__TESTS__LOG_LEVEL" || exit $?
         export "${TERMUX_CORE__TESTS__LOG_LEVEL___N?}" || exit $?
         ASAN_OPTIONS="fast_unwind_on_malloc=false:detect_leaks=$TERMUX_CORE__TESTS__DETECT_LEAKS" LSAN_OPTIONS="report_objects=$TERMUX_CORE__TESTS__DETECT_LEAKS" \
