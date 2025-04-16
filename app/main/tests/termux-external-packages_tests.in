@@ -212,20 +212,21 @@ test__termux_am__wrapper() {
 
     if [ "$ANDROID__BUILD_VERSION_SDK" -ge 34 ]; then
         termux_core__tests__run_script_test "am-broadcast$test_name_suffix" \
-            "#!/usr/bin/bash${NL}am broadcast$user_id_arg -a '@TERMUX_APP__NAMESPACE@.test' '$TERMUX_APP__PACKAGE_NAME'" \
+            "#!/usr/bin/bash${NL}am broadcast$user_id_arg -a '$TERMUX_APP__PACKAGE_NAME.test' '$TERMUX_APP__PACKAGE_NAME'" \
             0 "^.*Broadcast sent without waiting for result$" || return $?
     else
         termux_core__tests__run_script_test "am-broadcast$test_name_suffix" \
-            "#!/usr/bin/bash${NL}am broadcast$user_id_arg -a '@TERMUX_APP__NAMESPACE@.test' '$TERMUX_APP__PACKAGE_NAME'" \
+            "#!/usr/bin/bash${NL}am broadcast$user_id_arg -a '$TERMUX_APP__PACKAGE_NAME.test' '$TERMUX_APP__PACKAGE_NAME'" \
             0 "^.*Broadcast completed: result=0$" || return $?
     fi
 
+    # FIXME: Read env variable otherwise default.
     termux_core__tests__run_script_test "am-start-activity$test_name_suffix" \
-        "#!/usr/bin/bash${NL}am start$user_id_arg '@TERMUX_APP__SHELL_ACTIVITY__COMPONENT_NAME@'" \
+        "#!/usr/bin/bash${NL}am start$user_id_arg '$TERMUX_APP__PACKAGE_NAME/$TERMUX_APP__SHELL_API__SHELL_API_ACTIVITY__CLASS_NAME'" \
         0 "^.*Starting: Intent \{.*\}.*$" || return $?
 
     termux_core__tests__run_script_test "am-start-service$test_name_suffix" \
-        "#!/usr/bin/bash${NL}am startservice$user_id_arg '@TERMUX_APP__SHELL_SERVICE__COMPONENT_NAME@'" \
+        "#!/usr/bin/bash${NL}am startservice$user_id_arg '$TERMUX_APP__PACKAGE_NAME/$TERMUX_APP__SHELL_API__SHELL_API_SERVICE__CLASS_NAME'" \
         0 "^.*Starting service: Intent \{.*\}.*$" || return $?
 
     return 0
@@ -266,15 +267,16 @@ test__termux_am_socket__wrapper() {
     local user_id_arg="$2"
 
     termux_core__tests__run_script_test "termux-am-broadcast$test_name_suffix" \
-        "#!/usr/bin/bash${NL}termux-am broadcast$user_id_arg -a '@TERMUX_APP__NAMESPACE@.test' '$TERMUX_APP__PACKAGE_NAME'" \
+        "#!/usr/bin/bash${NL}termux-am broadcast$user_id_arg -a '$TERMUX_APP__PACKAGE_NAME.test' '$TERMUX_APP__PACKAGE_NAME'" \
         0 "^.*Broadcast completed: result=.*$" || return $? # resultCode seems to be -1
 
+    # FIXME: Read env variable otherwise default.
     termux_core__tests__run_script_test "termux-am-start-activity$test_name_suffix" \
-        "#!/usr/bin/bash${NL}termux-am start$user_id_arg '@TERMUX_APP__SHELL_ACTIVITY__COMPONENT_NAME@'" \
+        "#!/usr/bin/bash${NL}termux-am start$user_id_arg '$TERMUX_APP__PACKAGE_NAME/$TERMUX_APP__SHELL_API__SHELL_API_ACTIVITY__CLASS_NAME'" \
         0 "^.*Starting: Intent \{.*\}.*$" || return $?
 
     termux_core__tests__run_script_test "termux-am-start-service$test_name_suffix" \
-        "#!/usr/bin/bash${NL}termux-am startservice$user_id_arg '@TERMUX_APP__SHELL_SERVICE__COMPONENT_NAME@'" \
+        "#!/usr/bin/bash${NL}termux-am startservice$user_id_arg '$TERMUX_APP__PACKAGE_NAME/$TERMUX_APP__SHELL_API__SHELL_API_SERVICE__CLASS_NAME'" \
         0 "^.*Starting service: Intent \{.*\}.*$" || return $?
 
     return 0

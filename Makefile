@@ -37,8 +37,8 @@ export TERMUX_ENV__SS_TERMUX_EXEC__TESTS := EXEC__TESTS__# Default value: `EXEC_
 export TERMUX_ENV__S_TERMUX_EXEC__TESTS := $(TERMUX_ENV__S_ROOT)$(TERMUX_ENV__SS_TERMUX_EXEC__TESTS)# Default value: `TERMUX_EXEC__TESTS__`
 
 export TERMUX_APP__NAMESPACE := $(TERMUX_APP__PACKAGE_NAME)# Default value: `com.termux`
-export TERMUX_APP__SHELL_ACTIVITY__COMPONENT_NAME := $(TERMUX_APP__PACKAGE_NAME)/$(TERMUX_APP__NAMESPACE).app.TermuxActivity# Default value: `com.termux/com.termux.app.TermuxActivity`
-export TERMUX_APP__SHELL_SERVICE__COMPONENT_NAME := $(TERMUX_APP__PACKAGE_NAME)/$(TERMUX_APP__NAMESPACE).app.TermuxService# Default value: `com.termux/com.termux.app.TermuxService`
+export TERMUX_APP__SHELL_API__SHELL_API_ACTIVITY__CLASS_NAME := $(TERMUX_APP__NAMESPACE).app.TermuxActivity# Default value: `com.termux.app.TermuxActivity`
+export TERMUX_APP__SHELL_API__SHELL_API_SERVICE__CLASS_NAME := $(TERMUX_APP__NAMESPACE).app.TermuxService# Default value: `com.termux.app.TermuxService`
 
 export TERMUX_PKGS__REPO_NAME := termux-packages# Default value: `termux-packages`
 export TERMUX_PKGS__REPO_URL := $(TERMUX__REPOS_HOST_ORG_URL)/$(TERMUX_PKGS__REPO_NAME)# Default value: `https://github.com/termux/termux-packages`
@@ -167,8 +167,8 @@ export override TERMUX__CONSTANTS__SED_ARGS := \
 	-e "s%[@]TERMUX_ENV__S_TERMUX_CORE__TESTS[@]%$(TERMUX_ENV__S_TERMUX_CORE__TESTS)%g" \
 	-e "s%[@]TERMUX_ENV__S_TERMUX_EXEC__TESTS[@]%$(TERMUX_ENV__S_TERMUX_EXEC__TESTS)%g" \
 	-e "s%[@]TERMUX_APP__NAMESPACE[@]%$(TERMUX_APP__NAMESPACE)%g" \
-	-e "s%[@]TERMUX_APP__SHELL_ACTIVITY__COMPONENT_NAME[@]%$(TERMUX_APP__SHELL_ACTIVITY__COMPONENT_NAME)%g" \
-	-e "s%[@]TERMUX_APP__SHELL_SERVICE__COMPONENT_NAME[@]%$(TERMUX_APP__SHELL_SERVICE__COMPONENT_NAME)%g" \
+	-e "s%[@]TERMUX_APP__SHELL_API__SHELL_API_ACTIVITY__CLASS_NAME[@]%$(TERMUX_APP__SHELL_API__SHELL_API_ACTIVITY__CLASS_NAME)%g" \
+	-e "s%[@]TERMUX_APP__SHELL_API__SHELL_API_SERVICE__CLASS_NAME[@]%$(TERMUX_APP__SHELL_API__SHELL_API_SERVICE__CLASS_NAME)%g" \
 	-e "s%[@]TERMUX_PKGS__REPO_URL[@]%$(TERMUX_PKGS__REPO_URL__ESCAPED)%g" \
 	-e "s%[@]TERMUX_CORE_PKG__REPO_URL[@]%$(TERMUX_CORE_PKG__REPO_URL__ESCAPED)%g"
 
