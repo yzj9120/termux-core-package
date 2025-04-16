@@ -11,14 +11,47 @@ extern "C" {
  * Environment for Android.
  */
 
-#define ANDROID_ENV__S_ANDROID "ANDROID__"
+/**
+ * Android environment variables root scope.
+ *
+ * **Do not modify this!** This is considered a constant Android root
+ * scope for Android execution environment.**
+ *
+ * Default value: `ANDROID_`
+ */
+#define ANDROID_ENV__S_ROOT "ANDROID_"
+
+
+
+/**
+ * Android environment variables Android sub scope for primary variables
+ * or variables for currently running Android config.
+ *
+ * **Do not modify this!** This is considered a constant Android sub
+ * scope for Android execution environment.**
+ *
+ * Default value: `_`
+ */
+#define ANDROID_ENV__SS_ANDROID "_"
+
+/**
+ * Android environment variables Android scope for primary variables or
+ * variables for currently running Android config.
+ *
+ * **Do not modify this!**
+ *
+ * Default value: `ANDROID__`
+ */
+#define ANDROID_ENV__S_ANDROID ANDROID_ENV__S_ROOT ANDROID_ENV__SS_ANDROID
+
+
 
 /**
  * Environment variable for the Android build SDK version currently
  * running on the device that is defined by `Build.VERSION#SDK_INT`
  * and `ro.build.version.sdk` system property.
  *
- * This is exported by Termux app.
+ * This is exported by the Termux app.
  *
  * - https://developer.android.com/reference/android/os/Build.VERSION#SDK_INT
  * - https://developer.android.com/reference/android/os/Build.VERSION_CODES
