@@ -4,7 +4,6 @@
         "Version": "@TERMUX_CORE_PKG__VERSION@",
         "Architecture": "@TERMUX_CORE_PKG__ARCH@",
         "Maintainer": "@termux",
-        "Depends": "termux-core",
         "Homepage": "https://github.com/termux/termux-core-package",
         "Description": "Utils and libraries for Termux core"
     },
