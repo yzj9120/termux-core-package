@@ -6,19 +6,19 @@ export TERMUX__NAME := Termux# Default value: `Termux`
 export TERMUX__LNAME := termux# Default value: `termux`
 
 export TERMUX__REPOS_HOST_ORG_NAME := termux# Default value: `termux`
-export TERMUX__REPOS_HOST_ORG_URL := https://github.com/$(TERMUX__REPOS_HOST_ORG_NAME)# Default value: `https://github.com/termux`
+export TERMUX__REPOS_HOST_ORG_URL := https://github.com/$(TERMUX__REPOS_HOST_ORG_NAME)# Default value: `https://github.com.mytermux`
 
 export TERMUX_APP__NAME := Termux# Default value: `Termux`
-export TERMUX_APP__PACKAGE_NAME := com.termux# Default value: `com.termux`
-export TERMUX_APP__DATA_DIR := /data/data/$(TERMUX_APP__PACKAGE_NAME)# Default value: `/data/data/com.termux`
+export TERMUX_APP__PACKAGE_NAME := com.mytermux# Default value: `com.mytermux`
+export TERMUX_APP__DATA_DIR := /data/data/$(TERMUX_APP__PACKAGE_NAME)# Default value: `/data/data/com.mytermux`
 
-export TERMUX__ROOTFS := $(TERMUX_APP__DATA_DIR)/files# Default value: `/data/data/com.termux/files`
-export TERMUX__HOME := $(TERMUX__ROOTFS)/home# Default value: `/data/data/com.termux/files/home`
-export TERMUX__PREFIX := $(TERMUX__ROOTFS)/usr# Default value: `/data/data/com.termux/files/usr`
-export TERMUX__PREFIX__BIN_DIR := $(TERMUX__PREFIX)/bin# Default value: `/data/data/com.termux/files/usr/bin`
-export TERMUX__PREFIX__INCLUDE_DIR := $(TERMUX__PREFIX)/include# Default value: `/data/data/com.termux/files/usr/include`
-export TERMUX__PREFIX__LIB_DIR := $(TERMUX__PREFIX)/lib# Default value: `/data/data/com.termux/files/usr/lib`
-export TERMUX__PREFIX__TMP_DIR := $(TERMUX__PREFIX)/tmp# Default value: `/data/data/com.termux/files/usr/tmp`
+export TERMUX__ROOTFS := $(TERMUX_APP__DATA_DIR)/files# Default value: `/data/data/com.mytermux/files`
+export TERMUX__HOME := $(TERMUX__ROOTFS)/home# Default value: `/data/data/com.mytermux/files/home`
+export TERMUX__PREFIX := $(TERMUX__ROOTFS)/usr# Default value: `/data/data/com.mytermux/files/usr`
+export TERMUX__PREFIX__BIN_DIR := $(TERMUX__PREFIX)/bin# Default value: `/data/data/com.mytermux/files/usr/bin`
+export TERMUX__PREFIX__INCLUDE_DIR := $(TERMUX__PREFIX)/include# Default value: `/data/data/com.mytermux/files/usr/include`
+export TERMUX__PREFIX__LIB_DIR := $(TERMUX__PREFIX)/lib# Default value: `/data/data/com.mytermux/files/usr/lib`
+export TERMUX__PREFIX__TMP_DIR := $(TERMUX__PREFIX)/tmp# Default value: `/data/data/com.mytermux/files/usr/tmp`
 
 export TERMUX_ENV__S_ROOT := TERMUX_# Default value: `TERMUX_`
 export TERMUX_ENV__SS_TERMUX := _# Default value: `_`
@@ -36,16 +36,16 @@ export TERMUX_ENV__S_TERMUX_CORE__TESTS := $(TERMUX_ENV__S_ROOT)$(TERMUX_ENV__SS
 export TERMUX_ENV__SS_TERMUX_EXEC__TESTS := EXEC__TESTS__# Default value: `EXEC__TESTS__`
 export TERMUX_ENV__S_TERMUX_EXEC__TESTS := $(TERMUX_ENV__S_ROOT)$(TERMUX_ENV__SS_TERMUX_EXEC__TESTS)# Default value: `TERMUX_EXEC__TESTS__`
 
-export TERMUX_APP__NAMESPACE := $(TERMUX_APP__PACKAGE_NAME)# Default value: `com.termux`
-export TERMUX_APP__SHELL_API__SHELL_API_ACTIVITY__CLASS_NAME := $(TERMUX_APP__NAMESPACE).app.TermuxActivity# Default value: `com.termux.app.TermuxActivity`
-export TERMUX_APP__SHELL_API__SHELL_API_SERVICE__CLASS_NAME := $(TERMUX_APP__NAMESPACE).app.TermuxService# Default value: `com.termux.app.TermuxService`
+export TERMUX_APP__NAMESPACE := $(TERMUX_APP__PACKAGE_NAME)# Default value: `com.mytermux`
+export TERMUX_APP__SHELL_API__SHELL_API_ACTIVITY__CLASS_NAME := $(TERMUX_APP__NAMESPACE).app.TermuxActivity# Default value: `com.mytermux.app.TermuxActivity`
+export TERMUX_APP__SHELL_API__SHELL_API_SERVICE__CLASS_NAME := $(TERMUX_APP__NAMESPACE).app.TermuxService# Default value: `com.mytermux.app.TermuxService`
 
 export TERMUX_PKGS__REPO_NAME := termux-packages# Default value: `termux-packages`
-export TERMUX_PKGS__REPO_URL := $(TERMUX__REPOS_HOST_ORG_URL)/$(TERMUX_PKGS__REPO_NAME)# Default value: `https://github.com/termux/termux-packages`
+export TERMUX_PKGS__REPO_URL := $(TERMUX__REPOS_HOST_ORG_URL)/$(TERMUX_PKGS__REPO_NAME)# Default value: `https://github.com.mytermux/termux-packages`
 export TERMUX_PKGS__BUILD__REPO_ROOT_DIR
 
 export TERMUX_CORE_PKG__REPO_NAME := termux-core-package# Default value: `termux-core-package`
-export TERMUX_CORE_PKG__REPO_URL := $(TERMUX__REPOS_HOST_ORG_URL)/$(TERMUX_CORE_PKG__REPO_NAME)# Default value: `https://github.com/termux/termux-core-package`
+export TERMUX_CORE_PKG__REPO_URL := $(TERMUX__REPOS_HOST_ORG_URL)/$(TERMUX_CORE_PKG__REPO_NAME)# Default value: `https://github.com.mytermux/termux-core-package`
 export TERMUX_CORE__TERMUX_REPLACE_TERMUX_CORE_SRC_SCRIPTS_FILE := $(TERMUX_PKGS__BUILD__REPO_ROOT_DIR)/packages/termux-core/build/scripts/termux-replace-termux-core-src-scripts
 
 
@@ -194,11 +194,11 @@ else ifeq ($(TERMUX_CORE_PKG__ARCH),i686)
 	# From $NDK/docs/CPU-ARCH-ABIS.html:
 	override CFLAGS_DEFAULT += -march=i686 -msse3 -mstackrealign -mfpmath=sse
 	# i686 seem to explicitly require '-fPIC'.
-	# - https://github.com/termux/termux-packages/issues/7215#issuecomment-906154438
+	# - https://github.com.mytermux/termux-packages/issues/7215#issuecomment-906154438
 	override CFLAGS_DEFAULT += -fPIC
 endif
 
-# - https://github.com/termux/termux-packages/commit/b997c4ea
+# - https://github.com.mytermux/termux-packages/commit/b997c4ea
 ifeq ($(IS_ON_DEVICE_BUILD), 0)
 	override LDFLAGS_DEFAULT += -Wl,-rpath=$(TERMUX__PREFIX__LIB_DIR)
 endif
